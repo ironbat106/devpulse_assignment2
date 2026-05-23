@@ -6,10 +6,10 @@ import express, {
 import config from "./config/index";
 import pool from "./db/pool";
 import dotenv from "dotenv";
+import app from "./app";
 
 dotenv.config();
 
-const app: Application = express();
 const port = config.port;
 
 app.use(express.json());
