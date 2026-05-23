@@ -5,7 +5,7 @@ import {
   getSingleIssue,
   updateIssue,
   deleteIssue,
-} from "./issue.controller";
+} from "./issue.controller.js";
 
 import { authMiddleware } from "../../middleware/auth.middleware";
 
