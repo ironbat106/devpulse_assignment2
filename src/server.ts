@@ -3,8 +3,11 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import Pool from "./db/pool.js";
-import config from "./config";
+import config from "./config/index";
+import pool from "./db/pool";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app: Application = express();
 const port = config.port;
@@ -12,10 +15,6 @@ const port = config.port;
 app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
-
-const pool = new Pool({
-  connectionString: config.connection_string,
-});
 
 const initDB = async () => {
   try {
@@ -44,7 +43,7 @@ const initDB = async () => {
       );
     `);
 
-    console.log("✅ Database connected & tables ready");
+    console.log("Database connected & tables ready");
   } catch (err) {
     console.error("DB Error:", err);
   }
@@ -52,6 +51,10 @@ const initDB = async () => {
 
 initDB();
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+app.get("/", (req: Request, res: Response) => {
+  res.json({ message: "DevPulse API Running" });
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });

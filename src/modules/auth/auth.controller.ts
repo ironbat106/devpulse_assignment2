@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import Pool from "../../server.js";
-import { hashPassword, comparePassword } from "../../utils/hash.js";
-import { generateToken } from "../../utils/jwt.js";
+import type { Request, Response } from "express";
+import pool from "../../db/pool";
+import { hashPassword, comparePassword } from "../../utils/hash";
+import { generateToken } from "../../utils/jwt";
 
 
 export const signup = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const signup = async (req: Request, res: Response) => {
 
     const hashed = await hashPassword(password);
 
-    const result = await Pool.query(
+    const result = await pool.query(
       `INSERT INTO users(name,email,password,role)
        VALUES ($1,$2,$3,$4)
        RETURNING id,name,email,role,created_at,updated_at`,

@@ -1,43 +1,32 @@
-import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import type { NextFunction, Response } from "express";
+import type { AuthRequest } from "./auth.middleware";
 
-export interface AuthRequest extends Request {
-  user?: any;
-}
+export const requireRole = (role: string) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+          errors: "No user in request",
+        });
+      }
 
-export const authMiddleware = (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const authHeader = req.headers.authorization;
+      if (req.user.role !== role) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden",
+          errors: "Insufficient permissions",
+        });
+      }
 
-    if (!authHeader) {
-      return res.status(401).json({
+      next();
+    } catch (err) {
+      return res.status(500).json({
         success: false,
-        message: "Unauthorized",
-        errors: "No token provided",
+        message: "Server Error",
+        errors: "Role check failed",
       });
     }
-
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
-
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    );
-
-    req.user = decoded;
-
-    next();
-  } catch (err) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-      errors: "Invalid token",
-    });
-  }
+  };
 };

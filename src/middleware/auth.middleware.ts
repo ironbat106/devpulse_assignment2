@@ -1,8 +1,12 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../utils/jwt.js";
+import type { Request, Response, NextFunction } from "express";
+import { verifyToken } from "../utils/jwt";
+
+export interface AuthRequest extends Request {
+  user?: any;
+}
 
 export const authMiddleware = (
-  req: any,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -17,15 +21,21 @@ export const authMiddleware = (
     }
 
     const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
+    ? authHeader.split(" ")[1]
+    : authHeader;
 
+    if (!token) {
+    return res.status(401).json({
+    success: false,
+    message: "Token missing",
+    });
+}
     const decoded = verifyToken(token);
 
     req.user = decoded;
 
     next();
-  } catch (err) {
+  } catch (err: any) {
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token",
