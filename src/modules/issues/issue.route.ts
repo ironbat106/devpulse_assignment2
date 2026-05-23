@@ -15,6 +15,11 @@ router.post("/", authMiddleware, createIssue);
 router.get("/", getIssues);
 router.get("/:id", getSingleIssue);
 router.patch("/:id", authMiddleware, updateIssue);
-router.delete("/:id", authMiddleware, deleteIssue);
+router.delete(
+  "/:id",
+  authMiddleware,
+  requireRole("maintainer"),
+  deleteIssue
+);
 
 export default router;

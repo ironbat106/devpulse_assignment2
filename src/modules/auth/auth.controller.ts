@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
-import pool from "../../server.js";
+import Pool from "../../server.js";
 import { hashPassword, comparePassword } from "../../utils/hash.js";
 import { generateToken } from "../../utils/jwt.js";
 
-/* SIGNUP */
+
 export const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, role } = req.body;
 
     const hashed = await hashPassword(password);
 
-    const result = await pool.query(
+    const result = await Pool.query(
       `INSERT INTO users(name,email,password,role)
        VALUES ($1,$2,$3,$4)
        RETURNING id,name,email,role,created_at,updated_at`,
@@ -27,7 +27,7 @@ export const signup = async (req: Request, res: Response) => {
   }
 };
 
-/* LOGIN */
+
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
@@ -38,7 +38,11 @@ export const login = async (req: Request, res: Response) => {
     );
 
     if (!user.rows.length) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+    success: false,
+    message: "User not found",
+    errors: null,
+    });
     }
 
     const valid = await comparePassword(
@@ -47,7 +51,11 @@ export const login = async (req: Request, res: Response) => {
     );
 
     if (!valid) {
-      return res.status(401).json({ message: "Wrong password" });
+      return res.status(401).json({ 
+    success: false,
+    message: "Wrong Password",
+    errors: null,
+    });
     }
 
     const token = generateToken({
